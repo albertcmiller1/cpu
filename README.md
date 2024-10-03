@@ -68,3 +68,5 @@ For each supported instruction, write a function to handle its execution
 
 ## hello world assembly
 https://www.youtube.com/watch?v=d0OXp0zqIo0&ab_channel=ChrisHay
+
+https://medium.com/@travmath/understanding-the-mach-o-file-format-66cf0354e3f4
