@@ -1,4 +1,4 @@
-## compile a .C file 
+## compile a .c file into a binary executable 
 binaryC: 
 	rm -rf binaries/
 	mkdir binaries/
