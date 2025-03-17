@@ -38,13 +38,8 @@ project(AArch64Disassembler)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# If Capstone was installed with Homebrew on M1
-# include_directories(/opt/homebrew/include)
-# link_directories(/opt/homebrew/lib)
-
 include_directories(/opt/homebrew/Cellar/capstone/5.0.5/include)
 link_directories(/opt/homebrew/Cellar/capstone/5.0.5/lib)
-
 
 # Add your source files
 add_executable(disassembler src/main.cpp src/disassembler.cpp)

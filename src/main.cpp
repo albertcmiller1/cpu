@@ -1,6 +1,8 @@
 #include "disassembler.hpp"
 // #include "dis.cpp"
 
+
+
 std::string to_binary(uint32_t num){
     std::bitset<32> binary(num);
     return binary.to_string();
@@ -65,8 +67,20 @@ int run_capstone() {
     return 0;
 }
 
+int main(int argc, char* argv[]) {
+    // Validate arguments 
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <mach-o-file>" << std::endl;
+        return 1;
+    }
+    std::cout << "Reading binary mach-o file: " << argv[1] << std::endl;
 
-int main(){
+    AArch64ManualDisassembler disassembler;
+    disassembler.get_instructions_from_file(argv[1]);
+
+
+
+    std:: cout << "------\n\n";
     run_capstone();
     std:: cout << "------\n\n";
     run_primary();

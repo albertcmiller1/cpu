@@ -7,6 +7,8 @@
 #include <bitset>
 #include <cstdint>  
 #include <capstone/capstone.h>
+#include <fstream>
+#include <mach-o/loader.h>
 
 class AArch64ManualDisassembler {
 private:
@@ -62,6 +64,10 @@ public:
         }
     }
     
+    int get_instructions_from_file(std::string file_path);
+    void print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size);
+
+
     // Main disassembly method
     std::string disassemble(uint32_t instruction) const;
     

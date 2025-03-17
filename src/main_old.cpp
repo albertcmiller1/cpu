@@ -12,7 +12,7 @@ void print_instructions(const std::vector<uint8_t>& file_content, uint64_t offse
         }
     }
 }
- 
+
 int main(int argc, char* argv[]) {
     // Validate arguments 
     if (argc != 2) {
