@@ -1,6 +1,35 @@
 #include "disassembler.hpp"
 
-std::string AArch64Disassembler::disassemble(uint32_t instruction) const {
+std::string AArch64ManualDisassembler::capstone_disassemble(uint32_t instruction, uint64_t address = 0) const {
+    if (!capstone_initialized) {
+        return "capstone_not_initialized";
+    }
+    
+    // Convert instruction to bytes (little-endian)
+    uint8_t bytes[4];
+    bytes[0] = instruction & 0xFF;
+    bytes[1] = (instruction >> 8) & 0xFF;
+    bytes[2] = (instruction >> 16) & 0xFF;
+    bytes[3] = (instruction >> 24) & 0xFF;
+    
+    cs_insn *insn;
+    size_t count = cs_disasm(handle, bytes, sizeof(bytes), address, 1, &insn);
+    
+    std::string result;
+    if (count > 0) {
+        result = std::string(insn[0].mnemonic) + " " + std::string(insn[0].op_str);
+        cs_free(insn, count);
+    } else {
+        std::stringstream ss;
+        ss << "unknown_0x" << std::hex << std::setw(8) << std::setfill('0') << instruction;
+        result = ss.str();
+    }
+    
+    return result;
+}
+
+
+std::string AArch64ManualDisassembler::disassemble(uint32_t instruction) const {
     // Top-level decoding based on instruction groups
     // The instruction is 32 bits 
     // The first 8 bits are the instruction group 
@@ -28,7 +57,7 @@ std::string AArch64Disassembler::disassemble(uint32_t instruction) const {
 }
 
 
-std::string AArch64Disassembler::disassembleLoadStore(uint32_t instruction) const {
+std::string AArch64ManualDisassembler::disassembleLoadStore(uint32_t instruction) const {
     // Basic load/store handling
     bool is_load = (instruction >> 22) & 1;
     uint32_t size = (instruction >> 30) & 3;
@@ -58,7 +87,7 @@ std::string AArch64Disassembler::disassembleLoadStore(uint32_t instruction) cons
     return "unimplemented_loadstore";
 }
 
-std::string AArch64Disassembler::disassembleBranch(uint32_t instruction) const {
+std::string AArch64ManualDisassembler::disassembleBranch(uint32_t instruction) const {
     // Branch handling
     if ((instruction & 0xFC000000) == 0x14000000) {
         // B - unconditional branch
@@ -122,7 +151,7 @@ std::string AArch64Disassembler::disassembleBranch(uint32_t instruction) const {
     return "unimplemented_branch";
 }
 
-std::string AArch64Disassembler::disassembleDataProcessing(uint32_t instruction) const {
+std::string AArch64ManualDisassembler::disassembleDataProcessing(uint32_t instruction) const {
     // Handle data processing instructions
     
     // MOV immediate
@@ -171,7 +200,7 @@ std::string AArch64Disassembler::disassembleDataProcessing(uint32_t instruction)
     return "unimplemented_data_processing";
 }
 
-std::string AArch64Disassembler::disassembleSystemInstruction(uint32_t instruction) const {
+std::string AArch64ManualDisassembler::disassembleSystemInstruction(uint32_t instruction) const {
     // Handle system instructions
     
     // RET

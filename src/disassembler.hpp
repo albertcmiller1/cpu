@@ -4,12 +4,17 @@
 #include <vector>
 #include <iomanip>
 #include <sstream>
-
 #include <bitset>
-#include <cstdint>
+#include <cstdint>  
+#include <capstone/capstone.h>
 
-class AArch64Disassembler {
+class AArch64ManualDisassembler {
 private:
+    // capstone stuff 
+    csh handle;
+    bool capstone_initialized;
+
+
     // Helper methods to extract fields from instructions
     // uint32_t extractBits(uint32_t instruction, int start, int length) const {
     //     return (instruction >> start) & ((1 << length) - 1);
@@ -42,10 +47,26 @@ private:
     std::string disassembleSystemInstruction(uint32_t instruction) const;
     
 public:
-    AArch64Disassembler() {}
+    AArch64ManualDisassembler() : capstone_initialized(false) {
+        // Initialize Capstone
+        if (cs_open(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN, &handle) == CS_ERR_OK) {
+            capstone_initialized = true;
+            // Enable detailed mode for more information
+            cs_option(handle, CS_OPT_DETAIL, CS_OPT_ON);
+        }
+    }
+    
+    ~AArch64ManualDisassembler() {
+        if (capstone_initialized) {
+            cs_close(&handle);
+        }
+    }
     
     // Main disassembly method
     std::string disassemble(uint32_t instruction) const;
+    
+    // Use capstone 
+    std::string capstone_disassemble(uint32_t instruction, uint64_t address) const;
     
     // Process a list of instructions
     std::vector<std::string> disassembleAll(const std::vector<uint32_t>& instructions) const {
