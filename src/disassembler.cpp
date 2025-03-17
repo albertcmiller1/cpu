@@ -1,5 +1,10 @@
 #include "disassembler.hpp"
 
+std::string AArch64ManualDisassembler::to_binary_str(uint32_t num){
+    std::bitset<32> binary(num);
+    return binary.to_string();
+}
+
 
 void AArch64ManualDisassembler::print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size) {
     for (uint64_t i = offset; i < offset + size; i += 4) {
@@ -21,8 +26,8 @@ int AArch64ManualDisassembler::get_instructions_from_file(std::string file_path)
     }
     
     // read in the entire content of the file stream [read as raw bytes] into a vector using two iterators 
-    std::vector<uint8_t> file_content((
-        std::istreambuf_iterator<char>(file)), 
+    std::vector<uint8_t> file_content(
+        (std::istreambuf_iterator<char>(file)), 
         std::istreambuf_iterator<char>()
     );
     
@@ -93,8 +98,6 @@ int AArch64ManualDisassembler::get_instructions_from_file(std::string file_path)
     print_instructions(file_content, text_sect->offset, text_sect->size);
     return 0;
 }
-
-
 
 
 std::string AArch64ManualDisassembler::capstone_disassemble(uint32_t instruction, uint64_t address = 0) const {

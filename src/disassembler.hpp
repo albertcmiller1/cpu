@@ -66,7 +66,7 @@ public:
     
     int get_instructions_from_file(std::string file_path);
     void print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size);
-
+    std::string to_binary_str(uint32_t num);
 
     // Main disassembly method
     std::string disassemble(uint32_t instruction) const;

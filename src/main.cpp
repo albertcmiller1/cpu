@@ -1,13 +1,4 @@
 #include "disassembler.hpp"
-// #include "dis.cpp"
-
-
-
-std::string to_binary(uint32_t num){
-    std::bitset<32> binary(num);
-    return binary.to_string();
-}
-
 
 int run_primary() {
     // Your list of instructions
@@ -34,7 +25,7 @@ int run_primary() {
 
         std::cout << "Processing instruction" << std::endl;
         std::cout << "\tInstruction Hex: " << "0x" << std::hex << std::setw(8) << std::setfill('0') << instructions[i] << std::endl;
-        std::cout << "\tInstruction Binary: " << to_binary(instructions[i]) << std::endl;
+        std::cout << "\tInstruction Binary: " << disassembler.to_binary_str(instructions[i]) << std::endl;
         std::cout << "\tInstruction Offset: " << offset << std::endl;
         std::string assembly = disassembler.disassemble(instructions[i]);
         std::cout << "\tInstruction Assembly: " << assembly << std::endl;
@@ -69,19 +60,18 @@ int run_capstone() {
 
 int main(int argc, char* argv[]) {
     // Validate arguments 
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <mach-o-file>" << std::endl;
-        return 1;
-    }
-    std::cout << "Reading binary mach-o file: " << argv[1] << std::endl;
+    // if (argc != 2) {
+    //     std::cerr << "Usage: " << argv[0] << " <mach-o-file>" << std::endl;
+    //     return 1;
+    // }
+    // std::cout << "Reading binary mach-o file: " << argv[1] << std::endl;
 
+    std::string binary_file_path = "./binaries/hello";
     AArch64ManualDisassembler disassembler;
-    disassembler.get_instructions_from_file(argv[1]);
+    disassembler.get_instructions_from_file(binary_file_path);
 
-
-
-    std:: cout << "------\n\n";
-    run_capstone();
-    std:: cout << "------\n\n";
-    run_primary();
+    // std:: cout << "------\n\n";
+    // run_capstone();
+    // std:: cout << "------\n\n";
+    // run_primary();
 }
