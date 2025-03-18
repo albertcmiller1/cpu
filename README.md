@@ -96,3 +96,10 @@ For each supported instruction, write a function to handle its execution
 * https://developer.arm.com/documentation/ddi0596/latest/ 
 
 
+std::move -> purpose and what problem is solves 
+what is a dead lock 
+which is grener
+> thread waiting on an atomic bool > spin lock 
+> mutex lock 
+
+

@@ -59,19 +59,12 @@ int run_capstone() {
 }
 
 int main(int argc, char* argv[]) {
-    // Validate arguments 
-    // if (argc != 2) {
-    //     std::cerr << "Usage: " << argv[0] << " <mach-o-file>" << std::endl;
-    //     return 1;
-    // }
-    // std::cout << "Reading binary mach-o file: " << argv[1] << std::endl;
-
     std::string binary_file_path = "./binaries/hello";
     AArch64Disassembler disassembler;
-    disassembler.get_instructions_from_file(binary_file_path);
 
-    // std:: cout << "------\n\n";
-    // run_capstone();
-    // std:: cout << "------\n\n";
-    // run_primary();
+    std::vector<uint8_t> binary_file = disassembler.get_binary_file_content(binary_file_path);
+    section_64* text_sect = disassembler.get_instructions_from_file(binary_file);
+    std::cout << "\n\n" << std::endl;
+
+    disassembler.print_instructions(binary_file, text_sect->offset, text_sect->size);
 }

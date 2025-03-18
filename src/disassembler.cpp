@@ -9,7 +9,13 @@ void AArch64Disassembler::print_instructions(const std::vector<uint8_t>& file_co
     for (uint64_t i = offset; i < offset + size; i += 4) {
         if (i + 3 < file_content.size()) {
             uint32_t instruction = *reinterpret_cast<const uint32_t*>(&file_content[i]);
-            std::cout << "Instruction at offset " << i << ": 0x" << std::hex << instruction << std::dec << std::endl;
+            // std::cout << "Instruction at offset " << i << ": 0x" << std::hex << instruction << std::dec << std::endl;
+            // std::cout << "Trying to disassemble: " << std::endl;
+            
+            std::string assembly = capstone_disassemble(instruction, i);
+            std::cout << "Instruction at offset " 
+                << offset << ": 0x" 
+                  << std::hex << std::setw(8) << std::setfill('0') << instruction << " -> " << assembly << std::endl;
         }
     }
 }
@@ -41,32 +47,23 @@ std::vector<uint8_t> AArch64Disassembler::get_binary_file_content(std::string fi
 }
 
 
-int AArch64Disassembler::get_instructions_from_file(std::string file_path) {
-    std::vector<uint8_t> file_content = get_binary_file_content(file_path);
-
-    // file_content.data() returns a pointer to the underlying array of the std::vector<uint8_t>
-    // does this mean if i had an array, and type casted the first few spots of it via any type, i could get that value? 
+section_64* AArch64Disassembler::get_instructions_from_file(std::vector<uint8_t> file_content) {
     mach_header_64* header = reinterpret_cast<mach_header_64*>(file_content.data());
 
     // validate header 
     if (header->magic != MH_MAGIC_64) {
-        std::cerr << "Error: Not a 64-bit Mach-O file" << std::endl;
-        return 1;
+        throw std::runtime_error("Error: Not a 64-bit Mach-O file");
     }
 
-    // validate header 
     if (header->cputype != CPU_TYPE_ARM64) {
-        std::cerr << "Error: Not an ARM64 Mach-O file" << std::endl;
-        return 1;
+        throw std::runtime_error("Error: Not an ARM64 Mach-O file");
     }
-
 
     segment_command_64* big_text_sect;
     uint64_t offset = sizeof(mach_header_64);
     for (uint32_t i = 0; i < header->ncmds; ++i) {
         if (offset + sizeof(load_command) > file_content.size()) {
-            std::cerr << "Error: Unexpected end of file" << std::endl;
-            return 1;
+            throw std::runtime_error("Error: Unexpected end of file");
         }
 
         // grab sizeof(load_command) bytes from file_content starting at offset
@@ -91,6 +88,7 @@ int AArch64Disassembler::get_instructions_from_file(std::string file_path) {
 
     section_64* text_sect;
     for (uint32_t j = 0; j < big_text_sect->nsects; ++j) {
+        // why do we: big_text_sect + 1 ?
         section_64* sect = reinterpret_cast<section_64*>(big_text_sect + 1) + j;
         if (std::string(sect->sectname) != "__text") {
             continue;
@@ -100,8 +98,8 @@ int AArch64Disassembler::get_instructions_from_file(std::string file_path) {
     
     std::cout << "Found __text section at file offset: " << text_sect->offset << std::endl;
     std::cout << "Section size: " << text_sect->size << " bytes" << std::endl;
-    print_instructions(file_content, text_sect->offset, text_sect->size);
-    return 0;
+
+    return text_sect;
 }
 
 
@@ -134,7 +132,7 @@ std::string AArch64Disassembler::capstone_disassemble(uint32_t instruction, uint
 }
 
 
-std::string AArch64Disassembler::disassemble(uint32_t instruction) const {
+std::string AArch64Disassembler::manual_disassemble(uint32_t instruction) const {
     // Top-level decoding based on instruction groups
     // The instruction is 32 bits 
     // The first 8 bits are the instruction group 

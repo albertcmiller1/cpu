@@ -42,7 +42,6 @@ private:
         }
     }
 
-    std::vector<uint8_t> get_binary_file_content(std::string file_path);
     
     // Disassembly handlers for different instruction types
     std::string disassembleLoadStore(uint32_t instruction) const;
@@ -66,12 +65,12 @@ public:
         }
     }
     
-    int get_instructions_from_file(std::string file_path);
+    std::vector<uint8_t> get_binary_file_content(std::string file_path);
+    section_64* get_instructions_from_file(std::vector<uint8_t> file_content);
     void print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size);
     std::string to_binary_str(uint32_t num);
 
-    // Main disassembly method
-    std::string disassemble(uint32_t instruction) const;
+    std::string manual_disassemble(uint32_t instruction) const;
     
     // Use capstone 
     std::string capstone_disassemble(uint32_t instruction, uint64_t address) const;
