@@ -67,7 +67,7 @@ public:
     
     std::vector<uint8_t> get_binary_file_content(std::string file_path);
     section_64* get_instructions_from_file(std::vector<uint8_t> file_content);
-    void print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size);
+    std::vector<std::string> get_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size);
     std::string to_binary_str(uint32_t num);
 
     std::string manual_disassemble(uint32_t instruction) const;
@@ -79,7 +79,7 @@ public:
     std::vector<std::string> disassembleAll(const std::vector<uint32_t>& instructions) const {
         std::vector<std::string> results;
         for (const auto& instr : instructions) {
-            results.push_back(disassemble(instr));
+            results.push_back(manual_disassemble(instr));
         }
         return results;
     }

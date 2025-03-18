@@ -42,7 +42,7 @@ include_directories(/opt/homebrew/Cellar/capstone/5.0.5/include)
 link_directories(/opt/homebrew/Cellar/capstone/5.0.5/lib)
 
 # Add your source files
-add_executable(disassembler src/main.cpp src/disassembler.cpp)
+add_executable(disassembler src/main.cpp src/disassembler.cpp src/cpu.cpp)
 
 # Link against Capstone
 target_link_libraries(disassembler capstone)

@@ -5,19 +5,23 @@ std::string AArch64Disassembler::to_binary_str(uint32_t num){
     return binary.to_string();
 }
 
-void AArch64Disassembler::print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size) {
+std::vector<std::string> AArch64Disassembler::get_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size) {
+    std::vector<std::string> assembly_instructions;
     for (uint64_t i = offset; i < offset + size; i += 4) {
-        if (i + 3 < file_content.size()) {
-            uint32_t instruction = *reinterpret_cast<const uint32_t*>(&file_content[i]);
-            // std::cout << "Instruction at offset " << i << ": 0x" << std::hex << instruction << std::dec << std::endl;
-            // std::cout << "Trying to disassemble: " << std::endl;
-            
-            std::string assembly = capstone_disassemble(instruction, i);
-            std::cout << "Instruction at offset " 
-                << offset << ": 0x" 
-                  << std::hex << std::setw(8) << std::setfill('0') << instruction << " -> " << assembly << std::endl;
+        if (i + 3 >= file_content.size()) {
+            return assembly_instructions;
         }
+        uint32_t instruction = *reinterpret_cast<const uint32_t*>(&file_content[i]);
+        // std::cout << "Instruction at offset " << i << ": 0x" << std::hex << instruction << std::dec << std::endl;
+        // std::cout << "Trying to disassemble: " << std::endl;
+        
+        std::string assembly = capstone_disassemble(instruction, i);
+        std::cout << "Instruction at offset " 
+            << i << ": 0x" 
+                << std::hex << std::setw(8) << std::setfill('0') << instruction << " -> " << assembly << std::endl;
+        assembly_instructions.push_back(assembly);
     }
+    return assembly_instructions;
 }
 
 
