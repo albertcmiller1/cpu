@@ -1,12 +1,11 @@
 #include "disassembler.hpp"
 
-std::string AArch64ManualDisassembler::to_binary_str(uint32_t num){
+std::string AArch64Disassembler::to_binary_str(uint32_t num){
     std::bitset<32> binary(num);
     return binary.to_string();
 }
 
-
-void AArch64ManualDisassembler::print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size) {
+void AArch64Disassembler::print_instructions(const std::vector<uint8_t>& file_content, uint64_t offset, uint64_t size) {
     for (uint64_t i = offset; i < offset + size; i += 4) {
         if (i + 3 < file_content.size()) {
             uint32_t instruction = *reinterpret_cast<const uint32_t*>(&file_content[i]);
@@ -15,14 +14,14 @@ void AArch64ManualDisassembler::print_instructions(const std::vector<uint8_t>& f
     }
 }
 
-int AArch64ManualDisassembler::get_instructions_from_file(std::string file_path) {
+
+std::vector<uint8_t> AArch64Disassembler::get_binary_file_content(std::string file_path){
     std::cout << "Reading binary mach-o file: " << file_path << std::endl;
 
     // create an input file stream object, in binary mode, call it file
     std::ifstream file(file_path, std::ios::binary);
     if (!file) {
-        std::cerr << "Error: Unable to open file " << file_path << std::endl;
-        return 1;
+        throw std::runtime_error("Error: Unable to open file " + file_path);
     }
     
     // read in the entire content of the file stream [read as raw bytes] into a vector using two iterators 
@@ -35,9 +34,15 @@ int AArch64ManualDisassembler::get_instructions_from_file(std::string file_path)
 
     // valdiate vector size
     if (file_content.size() < sizeof(mach_header_64)) {
-        std::cerr << "Error: File is too small to be a valid Mach-O file" << std::endl;
-        return 1;
+        throw std::runtime_error("Error: File is too small to be a valid Mach-O file");
     }
+
+    return file_content;
+}
+
+
+int AArch64Disassembler::get_instructions_from_file(std::string file_path) {
+    std::vector<uint8_t> file_content = get_binary_file_content(file_path);
 
     // file_content.data() returns a pointer to the underlying array of the std::vector<uint8_t>
     // does this mean if i had an array, and type casted the first few spots of it via any type, i could get that value? 
@@ -100,7 +105,7 @@ int AArch64ManualDisassembler::get_instructions_from_file(std::string file_path)
 }
 
 
-std::string AArch64ManualDisassembler::capstone_disassemble(uint32_t instruction, uint64_t address = 0) const {
+std::string AArch64Disassembler::capstone_disassemble(uint32_t instruction, uint64_t address = 0) const {
     if (!capstone_initialized) {
         return "capstone_not_initialized";
     }
@@ -129,7 +134,7 @@ std::string AArch64ManualDisassembler::capstone_disassemble(uint32_t instruction
 }
 
 
-std::string AArch64ManualDisassembler::disassemble(uint32_t instruction) const {
+std::string AArch64Disassembler::disassemble(uint32_t instruction) const {
     // Top-level decoding based on instruction groups
     // The instruction is 32 bits 
     // The first 8 bits are the instruction group 
@@ -157,7 +162,7 @@ std::string AArch64ManualDisassembler::disassemble(uint32_t instruction) const {
 }
 
 
-std::string AArch64ManualDisassembler::disassembleLoadStore(uint32_t instruction) const {
+std::string AArch64Disassembler::disassembleLoadStore(uint32_t instruction) const {
     // Basic load/store handling
     bool is_load = (instruction >> 22) & 1;
     uint32_t size = (instruction >> 30) & 3;
@@ -187,7 +192,7 @@ std::string AArch64ManualDisassembler::disassembleLoadStore(uint32_t instruction
     return "unimplemented_loadstore";
 }
 
-std::string AArch64ManualDisassembler::disassembleBranch(uint32_t instruction) const {
+std::string AArch64Disassembler::disassembleBranch(uint32_t instruction) const {
     // Branch handling
     if ((instruction & 0xFC000000) == 0x14000000) {
         // B - unconditional branch
@@ -251,7 +256,7 @@ std::string AArch64ManualDisassembler::disassembleBranch(uint32_t instruction) c
     return "unimplemented_branch";
 }
 
-std::string AArch64ManualDisassembler::disassembleDataProcessing(uint32_t instruction) const {
+std::string AArch64Disassembler::disassembleDataProcessing(uint32_t instruction) const {
     // Handle data processing instructions
     
     // MOV immediate
@@ -300,7 +305,7 @@ std::string AArch64ManualDisassembler::disassembleDataProcessing(uint32_t instru
     return "unimplemented_data_processing";
 }
 
-std::string AArch64ManualDisassembler::disassembleSystemInstruction(uint32_t instruction) const {
+std::string AArch64Disassembler::disassembleSystemInstruction(uint32_t instruction) const {
     // Handle system instructions
     
     // RET

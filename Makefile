@@ -19,7 +19,7 @@ compile:
 	cd ./build/; cmake ..; make;
 
 run: 
-	./build/cpu ./binaries/hello
+	./build/disassembler ./binaries/hello
 
 dump: 
 	objdump -d ./binaries/hello

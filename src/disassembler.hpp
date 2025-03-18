@@ -10,7 +10,7 @@
 #include <fstream>
 #include <mach-o/loader.h>
 
-class AArch64ManualDisassembler {
+class AArch64Disassembler {
 private:
     // capstone stuff 
     csh handle;
@@ -41,6 +41,8 @@ private:
             return "w" + regNames[regNum].substr(1);
         }
     }
+
+    std::vector<uint8_t> get_binary_file_content(std::string file_path);
     
     // Disassembly handlers for different instruction types
     std::string disassembleLoadStore(uint32_t instruction) const;
@@ -49,7 +51,7 @@ private:
     std::string disassembleSystemInstruction(uint32_t instruction) const;
     
 public:
-    AArch64ManualDisassembler() : capstone_initialized(false) {
+    AArch64Disassembler() : capstone_initialized(false) {
         // Initialize Capstone
         if (cs_open(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN, &handle) == CS_ERR_OK) {
             capstone_initialized = true;
@@ -58,7 +60,7 @@ public:
         }
     }
     
-    ~AArch64ManualDisassembler() {
+    ~AArch64Disassembler() {
         if (capstone_initialized) {
             cs_close(&handle);
         }

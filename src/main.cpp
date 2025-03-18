@@ -18,7 +18,7 @@ int run_primary() {
         0xd65f03c0
     };
     
-    AArch64ManualDisassembler disassembler;
+    AArch64Disassembler disassembler;
 
     for (size_t i = 0; i < instructions.size(); i++) {
         uint32_t offset = 16236 + i * 4; // Starting from offset 16236
@@ -45,7 +45,7 @@ int run_capstone() {
         0xd65f03c0
     };
     
-    AArch64ManualDisassembler disassembler;
+    AArch64Disassembler disassembler;
     
     for (size_t i = 0; i < instructions.size(); i++) {
         uint32_t offset = 16236 + i * 4; // Starting from offset 16236
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     // std::cout << "Reading binary mach-o file: " << argv[1] << std::endl;
 
     std::string binary_file_path = "./binaries/hello";
-    AArch64ManualDisassembler disassembler;
+    AArch64Disassembler disassembler;
     disassembler.get_instructions_from_file(binary_file_path);
 
     // std:: cout << "------\n\n";
